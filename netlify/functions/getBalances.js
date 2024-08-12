@@ -1,11 +1,10 @@
-const { getBalances, getTransactionLog } = require('./database.js');
+const { getBalances } = require('./database');
 
-exports.handler = async (event, context) => {
-  const balances = getBalances();
-  const log = getTransactionLog();
+exports.handler = async function() {
+    const balances = await getBalances();
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ balances, log })
-  };
+    return {
+        statusCode: 200,
+        body: JSON.stringify(balances),
+    };
 };

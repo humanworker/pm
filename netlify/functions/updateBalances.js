@@ -1,33 +1,19 @@
-const { updateBalances, getBalances } = require('./database.js');
+const { updateBalance } = require('./database');
 
-exports.handler = async (event, context) => {
-  try {
-    const body = JSON.parse(event.body);
-    const { child, amount, action } = body;
-
-    let balances = getBalances();
-
-    if (action === 'add') {
-      balances[child] += amount;
-    } else if (action === 'subtract') {
-      balances[child] -= amount;
+exports.handler = async function(event) {
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            body: 'Method Not Allowed',
+        };
     }
 
-    const logEntry = {
-      date: new Date().toISOString(),
-      description: `${action === 'add' ? 'Added' : 'Spent'} $${amount.toFixed(2)} by ${child.charAt(0).toUpperCase() + child.slice(1)}`
-    };
+    const { child, amount, type } = JSON.parse(event.body);
 
-    updateBalances(balances, logEntry);
+    const balances = await updateBalance(child, amount, type);
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, balances })
+        statusCode: 200,
+        body: JSON.stringify(balances),
     };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, error: error.message })
-    };
-  }
 };
