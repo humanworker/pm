@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Money Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h2>Amelie's Balance: <span id="amelieBalance">$0.00</span></h2>
+    <p id="amelieInterest" style="font-size: 12px; color: grey;">Daily Interest: $0.00</p>
+
+    <h2>Oscar's Balance: <span id="oscarBalance">$0.00</span></h2>
+    <p id="oscarInterest" style="font-size: 12px; color: grey;">Daily Interest: $0.00</p>
+
+    <form id="expenseForm">
+        <h3>Add Expense</h3>
+        <label for="child">Select Child:</label>
+        <select id="child" required>
+            <option value="amelie">Amelie</option>
+            <option value="oscar">Oscar</option>
+        </select>
+        <label for="amount">Expense Amount:</label>
+        <input type="number" id="amount" step="0.01" required>
+        <button type="submit">Add Expense</button>
+    </form>
+
+    <form id="addMoneyForm">
+        <h3>Add Money</h3>
+        <label for="addChild">Select Child:</label>
+        <select id="addChild" required>
+            <option value="amelie">Amelie</option>
+            <option value="oscar">Oscar</option>
+        </select>
+        <label for="addAmount">Amount to Add:</label>
+        <input type="number" id="addAmount" step="0.01" required>
+        <button type="submit">Add Money</button>
+    </form>
+
+    <ul id="transactionLog" class="log"></ul>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
