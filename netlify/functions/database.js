@@ -1,24 +1,27 @@
-let balances = {
-    amelie: 0,
-    oscar: 0
-  };
-  
-  let transactionLog = [];
-  
-  function getBalances() {
+const { readFileSync, writeFileSync } = require('fs');
+const path = require('path');
+
+const balancesFile = path.resolve(__dirname, 'balances.json');
+
+function getBalances() {
+    const balances = JSON.parse(readFileSync(balancesFile, 'utf8'));
     return balances;
-  }
-  
-  function updateBalances(newBalances, logEntry) {
-    balances = newBalances;
-    if (logEntry) {
-      transactionLog.push(logEntry);
+}
+
+function updateBalance(child, amount, type) {
+    const balances = getBalances();
+
+    if (type === 'add') {
+        balances[child] += amount;
+    } else if (type === 'expense') {
+        balances[child] -= amount;
     }
-  }
-  
-  function getTransactionLog() {
-    return transactionLog;
-  }
-  
-  module.exports = { getBalances, updateBalances, getTransactionLog };
-  
+
+    writeFileSync(balancesFile, JSON.stringify(balances, null, 2));
+    return balances;
+}
+
+module.exports = {
+    getBalances,
+    updateBalance,
+};

@@ -11,7 +11,7 @@ exports.handler = async function(event) {
     const { child, amount, type } = JSON.parse(event.body);
     console.log('Received data:', { child, amount, type });
 
-    const balances = await updateBalance(child, amount, type);
+    const balances = updateBalance(child, amount, type);
 
     console.log('Updated balances:', balances);
 
