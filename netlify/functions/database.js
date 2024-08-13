@@ -1,11 +1,17 @@
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
+// Ensure this path is correct
 const balancesFile = path.resolve(__dirname, 'balances.json');
 
 function getBalances() {
-    const balances = JSON.parse(readFileSync(balancesFile, 'utf8'));
-    return balances;
+    try {
+        const balances = JSON.parse(readFileSync(balancesFile, 'utf8'));
+        return balances;
+    } catch (error) {
+        console.error("Error reading balances:", error);
+        return { amelie: 0, oscar: 0 };
+    }
 }
 
 function updateBalance(child, amount, type) {
