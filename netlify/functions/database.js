@@ -1,4 +1,6 @@
+//  [node-fetch]
 const fetch = require('node-fetch');
+
 
 const API_ID = process.env.NETLIFY_API_ID; // Set this in your environment variables
 const API_TOKEN = process.env.NETLIFY_API_TOKEN; // Set this in your environment variables
