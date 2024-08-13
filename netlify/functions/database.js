@@ -1,21 +1,32 @@
-const { readFileSync, writeFileSync } = require('fs');
-const path = require('path');
+const fetch = require('node-fetch');
 
-// Ensure this path is correct
-const balancesFile = path.resolve(__dirname, 'balances.json');
+const API_ID = process.env.NETLIFY_API_ID; // Set this in your environment variables
+const API_TOKEN = process.env.NETLIFY_API_TOKEN; // Set this in your environment variables
+const SITE_ID = process.env.SITE_ID; // Set this in your environment variables
 
-function getBalances() {
-    try {
-        const balances = JSON.parse(readFileSync(balancesFile, 'utf8'));
-        return balances;
-    } catch (error) {
-        console.error("Error reading balances:", error);
+const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${API_TOKEN}`,
+};
+
+const BALANCES_KEY = 'balances';
+
+async function getBalances() {
+    const response = await fetch(`https://api.netlify.com/api/v1/accounts/${API_ID}/persistent-disk/${BALANCES_KEY}`, {
+        method: 'GET',
+        headers,
+    });
+
+    if (response.status === 404) {
         return { amelie: 0, oscar: 0 };
     }
+
+    const data = await response.json();
+    return data;
 }
 
-function updateBalance(child, amount, type) {
-    const balances = getBalances();
+async function updateBalance(child, amount, type) {
+    const balances = await getBalances();
 
     if (type === 'add') {
         balances[child] += amount;
@@ -23,7 +34,12 @@ function updateBalance(child, amount, type) {
         balances[child] -= amount;
     }
 
-    writeFileSync(balancesFile, JSON.stringify(balances, null, 2));
+    await fetch(`https://api.netlify.com/api/v1/accounts/${API_ID}/persistent-disk/${BALANCES_KEY}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(balances),
+    });
+
     return balances;
 }
 
