@@ -1,0 +1,14 @@
+{
+  "name": "netlify-pocket-money-app",
+  "version": "1.0.0",
+  "description": "A simple pocket money app using Netlify Functions.",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Nothing to build'"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
