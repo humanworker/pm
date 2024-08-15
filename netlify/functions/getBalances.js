@@ -1,30 +1,43 @@
 const fetch = require('node-fetch');
-const { NETLIFY_API_ID, NETLIFY_API_TOKEN, SITE_ID } = process.env;
 
-exports.handler = async () => {
-  try {
-    const response = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/functions/getBalances`, {
-      headers: {
-        'Authorization': `Bearer ${NETLIFY_API_TOKEN}`
-      }
-    });
+const apiUrl = `https://api.netlify.com/api/v1/sites/${process.env.SITE_ID}/files`;
+const apiToken = process.env.NETLIFY_API_TOKEN;
 
-    if (!response.ok) {
-      throw new Error('Error fetching balances');
+const getBalances = async () => {
+    const url = `${apiUrl}/balances.json`;
+    console.log(`Fetching balances from: ${url}`);
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${apiToken}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching balances: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Balances fetched: ${JSON.stringify(data)}`);
+        return data;
+    } catch (error) {
+        console.error(`Error in getBalances: ${error.message}`);
+        throw error;
     }
+};
 
-    const balances = await response.json();
-    console.log("Fetched balances:", balances);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify(balances),
-    };
-  } catch (error) {
-    console.error("Error in getBalances function:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to retrieve balances' }),
-    };
-  }
+exports.handler = async (event, context) => {
+    try {
+        const balances = await getBalances();
+        return {
+            statusCode: 200,
+            body: JSON.stringify(balances),
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Error fetching balances' }),
+        };
+    }
 };
