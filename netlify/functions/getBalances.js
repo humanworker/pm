@@ -4,7 +4,7 @@ const apiUrl = `https://api.netlify.com/api/v1/sites/${process.env.SITE_ID}/file
 const apiToken = process.env.NETLIFY_API_TOKEN;
 
 const getBalances = async () => {
-    const url = `${apiUrl}/balances.json`;
+    const url = `https://lighthearted-panda-d3ab44.netlify.app/netlify/functions/balances.json`;
     console.log(`Fetching balances from: ${url}`);
 
     try {
