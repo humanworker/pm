@@ -1,10 +1,11 @@
 const fetch = require('node-fetch');
 
-const apiUrl = `https://api.netlify.com/api/v1/sites/${process.env.SITE_ID}/files`;
-const apiToken = process.env.NETLIFY_API_TOKEN;
+// Hardcoded API details
+const apiUrl = 'https://api.netlify.com/api/v1/sites/nfp_roUwmbjKjTtk2SUyoE3GX67ix1Hd62qo611c/files';
+const apiToken = '6f07843f-db30-4112-9fc8-7922a0f3a045';
 
 const getBalances = async () => {
-    const url = `https://lighthearted-panda-d3ab44.netlify.app/netlify/functions/balances.json`;
+    const url = `${apiUrl}/balances.json`;
     console.log(`Fetching balances from: ${url}`);
 
     try {
@@ -15,6 +16,7 @@ const getBalances = async () => {
         });
 
         if (!response.ok) {
+            console.error(`Error response status: ${response.status} ${response.statusText}`);
             throw new Error(`Error fetching balances: ${response.statusText}`);
         }
 

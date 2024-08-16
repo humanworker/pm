@@ -1,70 +1,80 @@
 const fetch = require('node-fetch');
-const { NETLIFY_API_ID, NETLIFY_API_TOKEN, SITE_ID } = process.env;
 
-async function getBalances() {
-  console.log("Fetching balances...");
-  const response = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/functions/getBalances`, {
-    headers: {
-      'Authorization': `Bearer ${NETLIFY_API_TOKEN}`
+// Hardcoded API details
+const apiUrl = 'https://api.netlify.com/api/v1/sites/nfp_roUwmbjKjTtk2SUyoE3GX67ix1Hd62qo611c/files';
+const apiToken = '6f07843f-db30-4112-9fc8-7922a0f3a045';
+
+const getBalances = async () => {
+    const url = `${apiUrl}/balances.json`;
+    console.log(`Fetching balances from: ${url}`);
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${apiToken}`
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`Error response status: ${response.status} ${response.statusText}`);
+            throw new Error(`Error fetching balances: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log(`Balances fetched: ${JSON.stringify(data)}`);
+        return data;
+    } catch (error) {
+        console.error(`Error in getBalances: ${error.message}`);
+        throw error;
     }
-  });
+};
 
-  if (!response.ok) {
-    console.error("Error fetching balances:", response.statusText);
-    throw new Error('Error fetching balances');
-  }
+const updateBalance = async (child, amount, type) => {
+    try {
+        const balances = await getBalances();
+        // Update logic for the balance
+        if (!balances[child]) {
+            balances[child] = 0;
+        }
+        balances[child] += (type === 'add' ? amount : -amount);
 
-  const balances = await response.json();
-  console.log("Balances fetched:", balances);
-  return balances;
-}
+        const url = `${apiUrl}/balances.json`;
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${apiToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(balances)
+        });
 
-async function updateBalance(child, amount, type) {
-  console.log(`Updating balance for ${child} with ${amount} of type ${type}`);
+        if (!response.ok) {
+            console.error(`Error updating balances: ${response.statusText}`);
+            throw new Error(`Error updating balances: ${response.statusText}`);
+        }
 
-  const balances = await getBalances();
-  
-  if (type === 'add') {
-    balances[child] += amount;
-  } else if (type === 'subtract') {
-    balances[child] -= amount;
-  }
+        console.log(`Balance updated: ${JSON.stringify(balances)}`);
+        return balances;
+    } catch (error) {
+        console.error(`Error in updateBalance: ${error.message}`);
+        throw error;
+    }
+};
 
-  console.log("New balances:", balances);
-
-  const response = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/functions/updateBalances`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${NETLIFY_API_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(balances)
-  });
-
-  if (!response.ok) {
-    console.error("Error updating balances:", response.statusText);
-    throw new Error('Error updating balances');
-  }
-
-  console.log("Balances successfully updated");
-}
-
-exports.handler = async (event) => {
-  try {
+exports.handler = async (event, context) => {
     const { child, amount, type } = JSON.parse(event.body);
-    console.log("Received data:", { child, amount, type });
+    console.log(`Received data: ${JSON.stringify({ child, amount, type })}`);
 
-    await updateBalance(child, amount, type);
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Balance updated successfully' }),
-    };
-  } catch (error) {
-    console.error("Error in updateBalances function:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to update balance' }),
-    };
-  }
+    try {
+        const updatedBalances = await updateBalance(child, amount, type);
+        return {
+            statusCode: 200,
+            body: JSON.stringify(updatedBalances),
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Error updating balances' }),
+        };
+    }
 };
