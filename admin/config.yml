@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main # Your site's main branch name
+
+media_folder: "assets/uploads" # Folder for uploaded media files
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "balances"
+    label: "Balances"
+    editor:
+      preview: false
+    files:
+      - label: "Pocket Money Balances"
+        name: "balances"
+        file: "src/balances.json" # Path to the JSON file
+        fields:
+          - { label: "Amelie", name: "amelie", widget: "number" }
+          - { label: "Oscar", name: "oscar", widget: "number" }
